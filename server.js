@@ -28,10 +28,10 @@ app.get("/:room", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("incoming connection");
+  //console.log("incoming connection");
   socket.on("join-room", (roomId, userId, userName) => {
     socket.join(roomId);
-    console.log(roomId);
+    //console.log(roomId);
     socket.to(roomId).emit("user-connected", userId);
     socket.on("message", (message) => {
       io.to(roomId).emit("createMessage", message, userName);
