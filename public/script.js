@@ -1,3 +1,4 @@
+
 const socket = io("http://localhost:3030");
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
@@ -20,7 +21,7 @@ showChat.addEventListener("click", () => {
 });
 
 const user = prompt("Enter your name");
-
+var currentPeer;
 var peer = new Peer(undefined, {
   path: "/peerjs",
   host: "/",
@@ -39,10 +40,11 @@ navigator.mediaDevices
     addVideoStream(myVideo, stream);
 
     peer.on("call", (call) => {
-      call.answer(stream);
+      call.answer(stream);  // answer the call with an audio + video stream
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
+        currentPeer= call.peerConnection;
         console.log(peers);
       });
     });
@@ -50,20 +52,33 @@ navigator.mediaDevices
     socket.on("user-connected", (userId) => {
       connectToNewUser(userId, stream);
     });
-    
+       
   });
+
+peer.on("open", (id) => {
+  currentUserId = id;
+  socket.emit("join-room", ROOM_ID, id, user);
+});
+
+socket.on('user-disconnected', userId => {
+  socket.emit("leave-room", ROOM_ID);
+}); 
 
 const connectToNewUser = (userId, stream) => {
   const call = peer.call(userId, stream);
   const video = document.createElement("video");
-  call.on("stream", (userVideoStream) => {
+call.on("stream", (userVideoStream) => {
     addVideoStream(video, userVideoStream);
+    currentPeer= call.peerConnection;
   });
+  call.on('close', () => {
+    video.remove()
+  })
+
+  peers[userId] = call
 };
 
-peer.on("open", (id) => {
-  socket.emit("join-room", ROOM_ID, id, user);
-});
+
 
 const addVideoStream = (video, stream) => {
   video.srcObject = stream;
@@ -94,6 +109,38 @@ text.addEventListener("keydown", (e) => {
 const inviteButton = document.querySelector("#inviteButton");
 const muteButton = document.querySelector("#muteButton");
 const stopVideo = document.querySelector("#stopVideo");
+
+document.getElementById("shareScreen").addEventListener('click', (e) => {
+  navigator.mediaDevices.getDisplayMedia({
+    video: {
+      cursor: "always"
+    },
+    audio: {
+      echoCancellation: true,
+      noiseSupression: true
+    }
+  }).then((stream)=> {
+    let videoTrack = stream.getVideoTracks()[0];
+    videoTrack.onended = function() {
+      stopScreenShare();
+    }
+    let sender = currentPeer.getSenders().find(function(s) {
+      return s.track.kind == videoTrack.kind
+    })
+    sender.replaceTrack(videoTrack)
+  }).catch((err) => {
+    console.log("unable to get display media" + err)
+  });
+  
+});
+
+function stopScreenShare() {
+  let videoTrack = myStream.getVideoTracks()[0];
+  var sender = currentPeer.getSenders().find(function(s){
+    return s.track.kind == videoTrack.kind;
+  })
+  sender.replaceTrack(videoTrack);
+};
 muteButton.addEventListener("click", () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
@@ -108,6 +155,7 @@ muteButton.addEventListener("click", () => {
     muteButton.innerHTML = html;
   }
 });
+
 
 stopVideo.addEventListener("click", () => {
   const enabled = myVideoStream.getVideoTracks()[0].enabled;
@@ -136,7 +184,7 @@ socket.on("createMessage", (message, userName) => {
     messages.innerHTML +
     `<div class="message">
         <b><i class="far fa-user-circle"></i> <span> ${
-          userName === user ? "me" : userName
+          userName === user ? "You" : userName
         }</span> </b>
         <span>${message}</span>
     </div>`;

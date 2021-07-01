@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>videoChatApp</title>
+    <title>Video Conferecing App</title>
     <link rel="stylesheet" href="style.css" />
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://kit.fontawesome.com/c939d0e917.js"></script>
@@ -19,7 +19,7 @@
         <div class="header__back">
           <i class="fas fa-angle-left"></i>
         </div>
-        <h3>Video Chat</h2>
+        <h3><b>Video Conference</b></h2>
       </div>
     </div>  
     <div class="main">  
@@ -32,18 +32,25 @@
       <div class="options">
         <div class="options__left">
           <div id="stopVideo" class="options__button">
-            <i class="fa fa-video-camera"></i>
+            <span title="mute/unmute video"><i class="fa fa-video-camera"></i></span>
           </div>
           <div id="muteButton" class="options__button">
-            <i class="fa fa-microphone"></i>
+            <span title="mute/unmute audio"><i class="fa fa-microphone"></i></span>
+          </div>
+          <button id="shareScreen" class="options__button">Share Screen</button>
+          <div id="share-button" class="options__button">
+            <span title="Share your screen"><i class="fa fa-share-square"></i></span>
+          </div>
+          <div id="stop-share-button" class="options__button">
+            <span title="Stop sharing your screen"><i class="fa fa-stop"></i></span>
           </div>
           <div id="showChat" class="options__button">
-            <i class="fa fa-comment"></i>
+            <span title="Chat"><i class="fa fa-comment" ></i></span>
           </div>
         </div>
         <div class="options__right">
           <div id="inviteButton" class="options__button">
-            <i class="fas fa-user-plus"></i>
+            <span title="Invite participant"><i class="fas fa-user-plus"></i></span>
           </div>
         </div>
       </div>
@@ -57,11 +64,13 @@
       <div class="main__message_container">
         <input id="chat_message" type="text" autocomplete="off" placeholder="Type your message here...">
         <div id="send" class="options__button">
-          <i class="fa fa-plus" aria-hidden="true"></i>
+          <i class="fa fa-arrow-right" aria-hidden="true"></i>
         </div>
       </div>
     </div>
   </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.1.2/simplepeer.min.js"></script>
+    
   </body>
   <script src="script.js"></script>
 </html>

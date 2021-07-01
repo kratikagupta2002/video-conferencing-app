@@ -73,6 +73,10 @@ video {
   margin-left: auto;
 }
 
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
 .options__button {
   display: flex;
   justify-content: center;
@@ -188,4 +192,5 @@ video {
   #showChat {
     display: flex;
   }
+  
 }
