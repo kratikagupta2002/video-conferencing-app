@@ -160,6 +160,7 @@ video {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+  height: 200px;
 }
 
 #showChat {

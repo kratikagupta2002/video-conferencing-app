@@ -123,8 +123,9 @@ document.getElementById("shareScreen").addEventListener('click', (e) => {
     let videoTrack = stream.getVideoTracks()[0];
     videoTrack.onended = function() {
       stopScreenShare();
-    }
-    let sender = currentPeer.getSenders().find(function(s) {
+      
+    }    
+    let sender = currentPeer.getSenders().find(function(s) {      
       return s.track.kind == videoTrack.kind
     })
     sender.replaceTrack(videoTrack)
@@ -135,7 +136,7 @@ document.getElementById("shareScreen").addEventListener('click', (e) => {
 });
 
 function stopScreenShare() {
-  let videoTrack = myStream.getVideoTracks()[0];
+  let videoTrack = stream.getVideoTracks()[0];
   var sender = currentPeer.getSenders().find(function(s){
     return s.track.kind == videoTrack.kind;
   })
