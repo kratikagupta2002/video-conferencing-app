@@ -1,5 +1,5 @@
 
-const socket = io("http://localhost:3030");
+const socket = io("/");
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
@@ -24,9 +24,8 @@ const user = prompt("Enter your name");
 var currentPeer;
 var peer = new Peer(undefined, {
   path: "/peerjs",
-  host: "/",
-  secure: false,
-  port: "3030",
+  host: "/",  
+  port: "443",
 });
 let peers={};
 let myVideoStream;
