@@ -161,6 +161,7 @@ video {
   justify-content: center;
   flex-wrap: wrap;
   height: 200px;
+  position: relative;
 }
 
 #showChat {
