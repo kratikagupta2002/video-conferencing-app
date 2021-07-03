@@ -1,4 +1,3 @@
-
 const socket = io("/");
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
@@ -22,11 +21,8 @@ showChat.addEventListener("click", () => {
 
 const user = prompt("Enter your name");
 var currentPeer;
-var peer = new Peer(undefined, {
-  path: "/peerjs",
-  host: "/",  
-  port: "443",
-});
+var peer = new Peer({host:'peerjs-server.herokuapp.com', secure:true, port:443}
+);
 let peers={};
 let myVideoStream;
 navigator.mediaDevices
