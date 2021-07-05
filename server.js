@@ -18,6 +18,7 @@ app.get("/hello", (req, res) => {
   res.send("hello world!");
   });
 app.use("/peerjs", peerServer);
+
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
@@ -37,7 +38,8 @@ io.on("connection", (socket) => {
     socket.on("message", (message) => {
       io.to(roomId).emit("createMessage", message, userName);
     });
-    socket.on("disconnect", function () {
+    socket.on("user-disconnected", () => {
+      console.log("disconnected");
       socket.to(roomId).emit("user-disconnected",userId);
     });
     
