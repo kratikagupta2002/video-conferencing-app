@@ -28,7 +28,7 @@
 }
 
 .main {
-  overflow: hidden;
+  overflow: scroll;
   height: 92vh;
   display: flex;
 }
@@ -52,11 +52,10 @@ video {
   height: auto;
   border-radius: 1rem;
   margin: 0.5rem;
-  width: 400px;
+  width: 300px;
   object-fit: cover;
-  transform: rotateY(180deg);
-  -webkit-transform: rotateY(180deg);
-  -moz-transform: rotateY(180deg);
+  overflow-y: auto;
+  
 }
 
 .options {
@@ -87,6 +86,8 @@ video {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
+
 
 .options__button {
   display: flex;
@@ -146,6 +147,22 @@ video {
 .message {
   display: flex;
   flex-direction: column;
+  
+}
+
+.leaveMeeting {
+	cursor: pointer;
+	padding: 4px 22px;
+	color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: red;
+  height: 50px;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  width: 50px;
+  margin: 0 0.5rem;
 }
 
 .message > b {
@@ -171,7 +188,10 @@ video {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  height: auto;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  align-items: center;
   position: relative;
 }
 
@@ -207,3 +227,4 @@ video {
   }
   
 }
+

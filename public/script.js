@@ -1,4 +1,4 @@
-const socket = io("");
+const socket = io("/");
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
@@ -21,6 +21,8 @@ showChat.addEventListener("click", () => {
 
 const user = prompt("Enter your name");
 var currentPeer;
+var screen ="";
+var myStream = '';
 var peer = new Peer(undefined, {
   path: '/peerjs',
   host: '/',
@@ -36,26 +38,27 @@ navigator.mediaDevices
   .then((stream) => {
     myVideoStream = stream;
     addVideoStream(myVideo, stream);
+    
+    socket.on("user-connected", (userId) => {
+      console.log("User Connected" + userId);
+          connectToNewUser(userId, stream);
+          console.log(userId + " connected")
+        }); 
 
     peer.on("call", (call) => {
       call.answer(stream);  // answer the call with an audio + video stream
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
-        console.log("45")
+        //console.log("45")
         currentPeer= call.peerConnection;
-        console.log("47")
+        //console.log("47")
         console.log(peers);
       });
       
     });
 
-    
-
-    socket.on("user-connected", (userId) => {
-      console.log("User Connected" + userId);
-          connectToNewUser(userId, stream);
-        });  
+      
     });
   socket.on('user-disconnected', userId => {
     if(peers[userId]) peers[userID].close()
@@ -79,6 +82,7 @@ const connectToNewUser = (userId, stream) => {
     call.on('close', () => {
       alert("70");
       video.remove()
+      alert("83")
     })
 
     peers[userId] = call;
@@ -111,15 +115,41 @@ text.addEventListener("keydown", (e) => {
   }
 });
 
+socket.on("createMessage", (message, userName) => {
+  messages.innerHTML =
+    messages.innerHTML +
+    `<div class="message">
+        <b><i class="far fa-user-circle"></i> <span> ${
+          userName === user ? "You" : userName
+        }</span> </b>
+        <span>${message}</span>
+        <div style ="color: white;text-align: right;">
+        ${new Date().toLocaleString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: true,
+        })}
+        </div>
+    </div>`;
+    //scrollToBottom()
+});
+/*const scrollToBottom = () => {
+  var d = $('.main__chat_window');
+  d.scrollTop(d.prop("scrollHeight"));
+}*/
+
 const inviteButton = document.querySelector("#inviteButton");
 const muteButton = document.querySelector("#muteButton");
 const stopVideo = document.querySelector("#stopVideo");
+const shareScreen = document.querySelector("#shareScreen");
 
-document.getElementById("shareScreen").addEventListener('click', (e) => {
+shareScreen.addEventListener('click', (e) => {
+  
+  shareScreen.disabled=true;
+  console.log("screen sharing button disabled");
   navigator.mediaDevices.getDisplayMedia({
     video: {
-      cursor: "never",
-      displaySurface: 'browser'
+      cursor: "always"
     },
     audio: {
       echoCancellation: true,
@@ -132,23 +162,33 @@ document.getElementById("shareScreen").addEventListener('click', (e) => {
       
     }    
     let sender = currentPeer.getSenders().find(function(s) {      
-      return s.track.kind == videoTrack.kind
+      return s.track.kind == videoTrack.kind;
     })
     sender.replaceTrack(videoTrack)
     alert("replaced")
+    videoTrack.onended = function() {
+      stopScreenShare(stream);
+      
+    } 
   }).catch((err) => {
     console.log("unable to get display media" + err)
   });
   
 });
 
+
 function stopScreenShare(stream) {
+
   let videoTrack = stream.getVideoTracks()[0];
   var sender = currentPeer.getSenders().find(function(s){
+    alert("inside stop")
     return s.track.kind == videoTrack.kind;
   })
   
 };
+
+
+
 muteButton.addEventListener("click", () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
@@ -187,18 +227,8 @@ inviteButton.addEventListener("click", (e) => {
   );
 });
 
-socket.on("createMessage", (message, userName) => {
-  messages.innerHTML =
-    messages.innerHTML +
-    `<div class="message">
-        <b><i class="far fa-user-circle"></i> <span> ${
-          userName === user ? "You" : userName
-        }</span> </b>
-        <span>${message}</span>
-    </div>`;
-});
-
-// set up basic variables for app
+ 
+ // set up basic variables for app
 
 const record = document.querySelector('.record');
 const stop = document.querySelector('.stop');
@@ -276,6 +306,7 @@ if (navigator.mediaDevices.getUserMedia) {
       const audioURL = window.URL.createObjectURL(blob);
       audio.src = audioURL;
       console.log("recorder stopped");
+      //saveAs(clipName);
 
       deleteButton.onclick = function(e) {
         let evtTgt = e.target;

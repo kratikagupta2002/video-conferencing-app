@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+var cors = require('cors')
 const server = require("http").Server(app);
 const { v4: uuidv4 } = require("uuid");
 app.set("view engine", "ejs");
@@ -14,11 +15,11 @@ const peerServer = ExpressPeerServer(server, {
   debug: true,
 });
 
-app.get("/hello", (req, res) => {
-  res.send("hello world!");
+app.get("/views/end.html", (req, res) => {
+  res.send("You left the meeting");
   });
 app.use("/peerjs", peerServer);
-
+app.use(cors());
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
