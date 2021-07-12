@@ -25,12 +25,11 @@ const user=prompt("Please enter your name")
 const currentPeer = [];
 var screen ="";
 
-
 const peer_id = localStorage.getItem("user_id")
 var peer = new Peer(undefined, {
   path: '/peerjs',
-  host: '/',
-  port: '3030',
+  host: 'https://kratika-video-conferencing-app.herokuapp.com/',
+  port: '',
 
 });
 let peers={};
@@ -40,45 +39,40 @@ navigator.mediaDevices
     audio: true,
     video: true,
   })
-  .then((stream) => {
-    //selfVideo(myVideo, stream)
+  .then((stream) => {    
     myVideoStream = stream;
     addVideoStream(myVideo, stream);    
     socket.on("user-connected", (userId) => { 
-          console.log("User Connected " + userId);     
-          
-          connectToNewUser(userId, stream);  
-          //const a = setTimeout(fun,1500)
-          //alert(user + " joined")
-          console.log("47");        
-        }); 
+      console.log("User Connected " + userId);   
+      console.log(user + " joined")  
+      connectToNewUser(userId, stream);  
+      
+    }); 
 
     peer.on("call", (call) => {
-      call.answer(stream);  // answer the call with an audio + video stream
+      call.answer(stream);                                            // answer the call with an audio + video stream
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
-        //console.log("45")
         currentPeer.push(call.peerConnection);
-        //console.log("47")
         console.log(peers);
+        
       });
       
     });
-
       
   });
 socket.on('user-disconnected', userId => {
   if(peers[userId]) peers[userID].close()
   console.log("user-disconnected");
-  alert(userId + " user disconnected");
+  alert(user + " disconnected")
+  
 }); 
 
 peer.on("open", (id) => {
   currentUserId = id;
   socket.emit("join-room", ROOM_ID, id, user);
-  //alert(user + " joined room");
-
+  
 });
 
 
@@ -89,14 +83,11 @@ const connectToNewUser = (userId, stream) => {
     userVideoStream=stream;
     addVideoStream(video, userVideoStream);
     currentPeer.push(call.peerConnection);
-    //alert("91")
-    console.log("new user video added");
+    console.log(user + "joined")
 
   })
-    call.on('close', () => {
-      //alert("70");
-      video.remove()
-      //alert("83")
+    call.on('close', () => {      
+      video.remove();  
     })
 
     peers[userId] = call;
@@ -107,14 +98,10 @@ const addVideoStream = (video, stream) => {
   //video.controls=true;
   video.setAttribute('disablepictureinpicture', '')
   video.addEventListener("loadedmetadata", () => {
-    video.play();
-
-    
+    video.play();  
     
   });
-  videoGrid.append(video);
-  console.log("video added")
-  
+  videoGrid.append(video);  
 };
 
 let text = document.querySelector("#chat_message");
@@ -151,12 +138,8 @@ socket.on("createMessage", (message, userName) => {
         })}
         </div>
     </div>`;
-    //scrollToBottom()
+    
 });
-/*const scrollToBottom = () => {
-  var d = $('.main__chat_window');
-  d.scrollTop(d.prop("scrollHeight"));
-}*/
 
 const inviteButton = document.querySelector("#inviteButton");
 const muteButton = document.querySelector("#muteButton");
@@ -189,13 +172,13 @@ shareScreen.addEventListener("click", async ()=>{
 
 function stopScreenShare(){
   shareScreen.classList.toggle("background__red");
-var videoTrack = myVideoStream.getVideoTracks()[0];
-for(let i =0; i<currentPeer.length; i++){
-  var sender =   currentPeer[i].getSenders().find((s)=>{
-  return s.track.kind === videoTrack.kind;
-})
-sender.replaceTrack(videoTrack);
-}
+  var videoTrack = myVideoStream.getVideoTracks()[0];
+  for(let i =0; i<currentPeer.length; i++){
+    var sender =   currentPeer[i].getSenders().find((s)=>{
+    return s.track.kind === videoTrack.kind;
+    })
+    sender.replaceTrack(videoTrack);
+  } 
 }
 
 
@@ -265,8 +248,6 @@ stopVideo.addEventListener("click", () => {
 
 inviteButton.addEventListener("click", (e) => {
   var addr = window.location.href
-  /*let addrText=addr.textContent;
-  copyText(addrText);*/
   navigator.clipboard.writeText(addr);
   new Notify ({
     status: 'success',      
@@ -281,18 +262,16 @@ inviteButton.addEventListener("click", (e) => {
     autotimeout: 3000,
     gap: 20,
     distance: 20,
-    type: 1,
+    type: 3,
     position: 'right top'
   })
 });
 
-function endmeeting() {
-  //toastr.info('How was your experience?');
+function endmeeting() {  
   console.log("someone left")
   window.location.href="../views/end.html";
 }
  
- // set up basic variables for app
 
 const record = document.querySelector('.record');
 const stop = document.querySelector('.stop');
@@ -337,7 +316,7 @@ if (navigator.mediaDevices.getUserMedia) {
         autotimeout: 3000,
         gap: 20,
         distance: 20,
-        type: 1,
+        type: 3,
         position: 'right top'
       })
       console.log(mediaRecorder.state);
@@ -364,7 +343,7 @@ if (navigator.mediaDevices.getUserMedia) {
         autotimeout: 3000,
         gap: 20,
         distance: 20,
-        type: 1,
+        type: 3,
         position: 'right top'
       })
       console.log(mediaRecorder.state);

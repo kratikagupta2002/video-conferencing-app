@@ -3,8 +3,6 @@ const express = require("express");
 const app = express();
 var cors = require('cors')
 var firebase = require("firebase/app");
-
-// Add the Firebase products that you want to use
 require("firebase/auth");
 
 const server = require("http").Server(app);
@@ -60,10 +58,10 @@ app.get("/:room", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  //console.log("incoming connection");
+  
   socket.on("join-room", (roomId, userId, userName) => {
     socket.join(roomId);
-    //console.log(roomId);
+    
     socket.broadcast.to(roomId).emit("user-connected", userId);
     socket.on("message", (message) => {
       io.to(roomId).emit("createMessage", message, userName);
