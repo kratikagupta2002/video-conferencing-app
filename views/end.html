@@ -5,8 +5,162 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meeting ended</title>
+    <link rel="stylesheet" href="/public/rating.css" />
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
-<body>
-    <p style="text-align: center">You left the meeting.</p>
+<body style="background-color: #1d2635;">    
+    <h1 style="text-align: center; color: white">
+        <br><br>
+
+        👋<br>
+        Goodbye!<br>
+        You left the meeting!<br><br>
+    </h1>  
+    <div class="feedback-wrapper at-bottom">
+        <div class="feedback-title">
+          <h1 class="text-center">How would you rate this app?
+          </h1>
+        </div>
+        <div class="feedback-content">
+          <div class="feedback-faces">
+            <div class="row">
+              <div class="face-wrapper slide-out-y-alt">
+                <div class="face-counter invisible" data-title-none="No one rated it like this" data-title-one="One person rated it like this" data-title-many="other people rated it like this"></div>
+                <input class="rate-input hidden" id="rate-0" type="radio" name="rating" value="0"/>
+                <label class="face grayscale face-wtf" for="rate-0" data-hint="Oh God! Why?!">
+                  <div class="eyes-wrapper">
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mouth-wrapper">
+                    <div class="mouth"></div>
+                  </div>
+                </label>
+              </div>
+              <div class="face-wrapper slide-out-y-alt">
+                <div class="face-counter invisible" data-title-none="No one rated it like this" data-title-one="One person rated it like this" data-title-many="other people rated it like this"></div>
+                <input class="rate-input hidden" id="rate-1" type="radio" name="rating" value="1"/>
+                <label class="face grayscale face-disappointed" for="rate-1" data-hint="It sucks...">
+                  <div class="eyes-wrapper">
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mouth-wrapper">
+                    <div class="mouth"></div>
+                  </div>
+                </label>
+              </div>
+              <div class="face-wrapper slide-out-y-alt">
+                <div class="face-counter invisible" data-title-none="No one rated it like this" data-title-one="One person rated it like this" data-title-many="other people rated it like this"></div>
+                <input class="rate-input hidden" id="rate-2" type="radio" name="rating" value="2"/>
+                <label class="face grayscale face-sad" for="rate-2" data-hint="It's ok. I guess.">
+                  <div class="eyes-wrapper">
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mouth-wrapper">
+                    <div class="mouth"></div>
+                  </div>
+                </label>
+              </div>
+              <div class="face-wrapper slide-out-y-alt">
+                <div class="face-counter invisible" data-title-none="No one rated it like this" data-title-one="One person rated it like this" data-title-many="other people rated it like this"></div>
+                <input class="rate-input hidden" id="rate-3" type="radio" name="rating" value="3"/>
+                <label class="face grayscale face-happy" for="rate-3" data-hint="This is great!">
+                  <div class="eyes-wrapper">
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mouth-wrapper">
+                    <div class="mouth"></div>
+                  </div>
+                </label>
+              </div>
+              <div class="face-wrapper slide-out-y-alt">
+                <div class="face-counter invisible" data-title-none="No one rated it like this" data-title-one="One person rated it like this" data-title-many="other people rated it like this"></div>
+                <input class="rate-input hidden" id="rate-4" type="radio" name="rating" value="4"/>
+                <label class="face grayscale face-love" for="rate-4" data-hint="OMG! I love it!">
+                  <div class="eyes-wrapper">
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                    <div class="eye">
+                      <div class="pupil">
+                        <div class="eyelid"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mouth-wrapper">
+                    <div class="mouth"></div>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div class="faces-hint text-center text-gray" data-default-hint="">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>    
+      
+        <script>
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        var firebaseConfig = {
+            apiKey: "AIzaSyABQEm9w0NTFxXOEqspp6iQUukNoSSV_rs",
+            authDomain: "video-conferencing-app-dda1c.firebaseapp.com",
+            projectId: "video-conferencing-app-dda1c",
+            storageBucket: "video-conferencing-app-dda1c.appspot.com",
+            messagingSenderId: "980384311459",
+            appId: "1:980384311459:web:6a5fbc2e516c7d13dbb716",
+            measurementId: "G-M7PR4ZEPLG"
+        };
+        // Initialize Firebase
+        //firebase.initializeApp(firebaseConfig);
+        //firebase.analytics();
+        </script>
+        <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
+        <script src = "https://www.gstatic.com/firebasejs/8.7.1/firebase-database.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-analytics.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
+        <script src="/public/rating.js"></script>
 </body>
 </html>

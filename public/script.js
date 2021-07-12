@@ -3,6 +3,7 @@ const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
 const backBtn = document.querySelector(".header__back");
+
 myVideo.muted = true;
 
 backBtn.addEventListener("click", () => {
@@ -19,14 +20,18 @@ showChat.addEventListener("click", () => {
   document.querySelector(".header__back").style.display = "block";
 });
 
-const user = prompt("Enter your name");
-var currentPeer;
+const user=prompt("Please enter your name")
+
+const currentPeer = [];
 var screen ="";
-var myStream = '';
+
+
+const peer_id = localStorage.getItem("user_id")
 var peer = new Peer(undefined, {
   path: '/peerjs',
   host: '/',
-  port: '3030'
+  port: '3030',
+
 });
 let peers={};
 let myVideoStream;
@@ -36,13 +41,16 @@ navigator.mediaDevices
     video: true,
   })
   .then((stream) => {
+    //selfVideo(myVideo, stream)
     myVideoStream = stream;
-    addVideoStream(myVideo, stream);
-    
-    socket.on("user-connected", (userId) => {
-      console.log("User Connected" + userId);
-          connectToNewUser(userId, stream);
-          console.log(userId + " connected")
+    addVideoStream(myVideo, stream);    
+    socket.on("user-connected", (userId) => { 
+          console.log("User Connected " + userId);     
+          
+          connectToNewUser(userId, stream);  
+          //const a = setTimeout(fun,1500)
+          //alert(user + " joined")
+          console.log("47");        
         }); 
 
     peer.on("call", (call) => {
@@ -51,7 +59,7 @@ navigator.mediaDevices
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
         //console.log("45")
-        currentPeer= call.peerConnection;
+        currentPeer.push(call.peerConnection);
         //console.log("47")
         console.log(peers);
       });
@@ -59,30 +67,36 @@ navigator.mediaDevices
     });
 
       
-    });
-  socket.on('user-disconnected', userId => {
-    if(peers[userId]) peers[userID].close()
-  }); 
-
-  peer.on("open", (id) => {
-    currentUserId = id;
-    socket.emit("join-room", ROOM_ID, id, user);
   });
+socket.on('user-disconnected', userId => {
+  if(peers[userId]) peers[userID].close()
+  console.log("user-disconnected");
+  alert(userId + " user disconnected");
+}); 
 
+peer.on("open", (id) => {
+  currentUserId = id;
+  socket.emit("join-room", ROOM_ID, id, user);
+  //alert(user + " joined room");
+
+});
 
 
 const connectToNewUser = (userId, stream) => {
   const call = peer.call(userId, stream);
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
+    userVideoStream=stream;
     addVideoStream(video, userVideoStream);
-    currentPeer= call.peerConnection;
+    currentPeer.push(call.peerConnection);
+    //alert("91")
+    console.log("new user video added");
 
   })
     call.on('close', () => {
-      alert("70");
+      //alert("70");
       video.remove()
-      alert("83")
+      //alert("83")
     })
 
     peers[userId] = call;
@@ -90,11 +104,17 @@ const connectToNewUser = (userId, stream) => {
 
 const addVideoStream = (video, stream) => {
   video.srcObject = stream;
+  //video.controls=true;
+  video.setAttribute('disablepictureinpicture', '')
   video.addEventListener("loadedmetadata", () => {
     video.play();
+
+    
     
   });
   videoGrid.append(video);
+  console.log("video added")
+  
 };
 
 let text = document.querySelector("#chat_message");
@@ -143,61 +163,84 @@ const muteButton = document.querySelector("#muteButton");
 const stopVideo = document.querySelector("#stopVideo");
 const shareScreen = document.querySelector("#shareScreen");
 
-shareScreen.addEventListener('click', (e) => {
-  
+shareScreen.addEventListener("click", async ()=>{
+  shareScreen.classList.toggle("background__red");
   shareScreen.disabled=true;
-  console.log("screen sharing button disabled");
-  navigator.mediaDevices.getDisplayMedia({
-    video: {
-      cursor: "always"
-    },
-    audio: {
-      echoCancellation: true,
-      noiseSupression: true
+  const video = document.createElement("video");
+  var captureStream = null;
+  try {
+    captureStream = await navigator.mediaDevices.getDisplayMedia();
+    var videoTrack = captureStream.getVideoTracks()[0];
+    videoTrack.controls=true;
+    videoTrack.onended = ()=>{
+    stopScreenShare();
     }
-  }).then((stream)=> {
-    let videoTrack = stream.getVideoTracks()[0];
-    videoTrack.onended = function() {
-      stopScreenShare(stream);
-      
-    }    
-    let sender = currentPeer.getSenders().find(function(s) {      
-      return s.track.kind == videoTrack.kind;
+    for( let i = 0; i<currentPeer.length; i++){
+      var sender = currentPeer[i].getSenders().find((s)=>{
+      return s.track.kind === videoTrack.kind;
     })
-    sender.replaceTrack(videoTrack)
-    alert("replaced")
-    videoTrack.onended = function() {
-      stopScreenShare(stream);
-      
-    } 
-  }).catch((err) => {
-    console.log("unable to get display media" + err)
-  });
-  
-});
+    sender.replaceTrack(videoTrack);
+    }
+  } catch(err)
+  {   shareScreen.classList.toggle("background__red");
+      console.error("Error: " + err);
+  }
+})
 
-
-function stopScreenShare(stream) {
-
-  let videoTrack = stream.getVideoTracks()[0];
-  var sender = currentPeer.getSenders().find(function(s){
-    alert("inside stop")
-    return s.track.kind == videoTrack.kind;
-  })
-  
-};
-
+function stopScreenShare(){
+  shareScreen.classList.toggle("background__red");
+var videoTrack = myVideoStream.getVideoTracks()[0];
+for(let i =0; i<currentPeer.length; i++){
+  var sender =   currentPeer[i].getSenders().find((s)=>{
+  return s.track.kind === videoTrack.kind;
+})
+sender.replaceTrack(videoTrack);
+}
+}
 
 
 muteButton.addEventListener("click", () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
     myVideoStream.getAudioTracks()[0].enabled = false;
+    new Notify ({
+      status: 'error',      
+      text: 'Your mic is off',
+      effect: 'fade',
+      speed: 300,
+      customClass: null,
+      customIcon: null,
+      showIcon: true,
+      showCloseButton: true,
+      autoclose: true,
+      autotimeout: 3000,
+      gap: 20,
+      distance: 20,
+      type: 3,
+      position: 'right top'
+    })
     html = `<i class="fas fa-microphone-slash"></i>`;
     muteButton.classList.toggle("background__red");
     muteButton.innerHTML = html;
+    
   } else {
     myVideoStream.getAudioTracks()[0].enabled = true;
+    new Notify ({
+      status: 'warning',      
+      text: 'Your mic is on',
+      effect: 'fade',
+      speed: 300,
+      customClass: null,
+      customIcon: null,
+      showIcon: true,
+      showCloseButton: true,
+      autoclose: true,
+      autotimeout: 3000,
+      gap: 20,
+      distance: 20,
+      type: 3,
+      position: 'right top'
+    })
     html = `<i class="fas fa-microphone"></i>`;
     muteButton.classList.toggle("background__red");
     muteButton.innerHTML = html;
@@ -221,12 +264,33 @@ stopVideo.addEventListener("click", () => {
 });
 
 inviteButton.addEventListener("click", (e) => {
-  prompt(
-    "Copy this link and send it to people you want to meet with",
-    window.location.href
-  );
+  var addr = window.location.href
+  /*let addrText=addr.textContent;
+  copyText(addrText);*/
+  navigator.clipboard.writeText(addr);
+  new Notify ({
+    status: 'success',      
+    text: 'Link copied!',
+    effect: 'fade',
+    speed: 300,
+    customClass: null,
+    customIcon: null,
+    showIcon: true,
+    showCloseButton: true,
+    autoclose: true,
+    autotimeout: 3000,
+    gap: 20,
+    distance: 20,
+    type: 1,
+    position: 'right top'
+  })
 });
 
+function endmeeting() {
+  //toastr.info('How was your experience?');
+  console.log("someone left")
+  window.location.href="../views/end.html";
+}
  
  // set up basic variables for app
 
@@ -260,9 +324,26 @@ if (navigator.mediaDevices.getUserMedia) {
 
     record.onclick = function() {
       mediaRecorder.start();
+      new Notify ({
+        status: 'success',      
+        text: 'Recording has started!',
+        effect: 'fade',
+        speed: 300,
+        customClass: null,
+        customIcon: null,
+        showIcon: true,
+        showCloseButton: true,
+        autoclose: true,
+        autotimeout: 3000,
+        gap: 20,
+        distance: 20,
+        type: 1,
+        position: 'right top'
+      })
       console.log(mediaRecorder.state);
       console.log("recorder started");
       record.style.background = "red";
+      record.style.borderStyle="hidden";
 
       stop.disabled = false;
       record.disabled = true;
@@ -270,10 +351,28 @@ if (navigator.mediaDevices.getUserMedia) {
 
     stop.onclick = function() {
       mediaRecorder.stop();
+      new Notify ({
+        status: 'success',      
+        text: 'Recording stopped!',
+        effect: 'fade',
+        speed: 300,
+        customClass: null,
+        customIcon: null,
+        showIcon: true,
+        showCloseButton: true,
+        autoclose: true,
+        autotimeout: 3000,
+        gap: 20,
+        distance: 20,
+        type: 1,
+        position: 'right top'
+      })
       console.log(mediaRecorder.state);
       console.log("recorder stopped");
       record.style.background = "";
       record.style.color = "";
+      record.style.borderStyle="hidden";
+
       // mediaRecorder.requestData();
 
       stop.disabled = true;
@@ -293,6 +392,7 @@ if (navigator.mediaDevices.getUserMedia) {
       clipContainer.classList.add('clip');
       audio.setAttribute('controls', '');
       deleteButton.innerHTML = '<i class="fa fa-trash-o"></i>';
+      deleteButton.style.borderStyle="hidden";
       deleteButton.className = 'options options__right options__button sound-clips ';
       
       clipContainer.appendChild(audio);
@@ -309,13 +409,44 @@ if (navigator.mediaDevices.getUserMedia) {
       //saveAs(clipName);
 
       deleteButton.onclick = function(e) {
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "You won't be able to revert this!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            let evtTgt = e.target;
+            evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
+            console.log("deleted");
+            Swal.fire(
+              'Deleted!',
+              'Your audio clip has been deleted.',
+              'success'
+            )
+          }
+          else
+          {
+            Swal.fire(
+              'Cancelled',
+              'Your audio clip is safe :)',
+              'error'
+            )
+          }
+        })
+        /*
         let evtTgt = e.target;
         evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
-        console.log("deleted");
+        toastr.success('Audio recording has been deleted!');
+        console.log("deleted");*/
       }
 
       clipLabel.onclick = function() {
         const existingName = clipLabel.textContent;
+        
         const newClipName = prompt('Enter a new name for your sound clip?');
         if(newClipName === null) {
           clipLabel.textContent = existingName;
@@ -331,14 +462,23 @@ if (navigator.mediaDevices.getUserMedia) {
   }
 
   let onError = function(err) {
+    toastr.error('An error occured!');
     console.log('The following error occured: ' + err);
   }
 
   navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError);
 
 } else {
+  toastr.error('getUserMedia not supported on your browser!');
    console.log('getUserMedia not supported on your browser!');
 }
 
+document.querySelectorAll('.feedback li').forEach(entry => entry.addEventListener('click', e => {
+  if(!entry.classList.contains('active')) {
+      document.querySelector('.feedback li.active').classList.remove('active');
+      entry.classList.add('active');
+  }
+  e.preventDefault();
+}));
 
 

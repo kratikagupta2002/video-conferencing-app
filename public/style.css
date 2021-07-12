@@ -1,9 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
 :root {
-  --main-darklg: #1d2635;
-  --main-dark: #161d29;
-  --primary-color: #2f80ec;
+  --main-darklg: #1bac6f;
+  --main-dark: white;
+  --primary-color: #4fd898;
   --main-light: #eeeeee;
   font-family: "Poppins", sans-serif;
 }
@@ -20,7 +20,7 @@
   height: 8vh;
   position: relative;
   width: 100%;
-  background-color: var(--primary-color);
+  background-color: var(--main-darklg);
 }
 
 .logo > h3 {
@@ -28,7 +28,7 @@
 }
 
 .main {
-  overflow: scroll;
+  
   height: 92vh;
   display: flex;
 }
@@ -54,7 +54,7 @@ video {
   margin: 0.5rem;
   width: 300px;
   object-fit: cover;
-  overflow-y: auto;
+  overflow: auto;
   
 }
 
@@ -75,7 +75,8 @@ video {
 }
 
 #buttons {
-  display: flex;
+  display: flex;  
+  
 }
 
 .options__right {
@@ -96,21 +97,21 @@ video {
   background-color: var(--primary-color);
   height: 50px;
   border-radius: 5px;
-  color: var(--main-light);
+  color: white;
   font-size: 1.2rem;
   width: 50px;
   margin: 0 0.5rem;
 }
 
 .background__red {
-  background-color: #f6484a;
+  background-color: red;
 }
 
 .main__right {
   display: flex;
   flex-direction: column;
   flex: 0.3;
-  background-color: #242f41;
+  background-color: #1fc07d;
 }
 
 .main__chat_window {
@@ -183,6 +184,9 @@ video {
   padding: 1rem;
   border-radius: 5px;
 }
+#send {
+  background-color: var(--primary-color);
+}
 
 #video-grid {
   display: flex;
@@ -190,7 +194,7 @@ video {
   flex-wrap: wrap;
   height: 100%;
   width: 100%;
-  overflow-y: auto;
+  overflow: auto;
   align-items: center;
   position: relative;
 }
