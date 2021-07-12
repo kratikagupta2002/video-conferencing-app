@@ -11,7 +11,7 @@ const Swal = require('sweetalert2')
 
 const { v4: uuidv4 } = require("uuid");
 app.set("view engine", "ejs");
-const io = require('socket.io')(server, {
+/*const io = require('socket.io')(server, {
   cors: {
       origin: "http://localhost:3030",
       methods: ["GET", "POST"],
@@ -19,15 +19,16 @@ const io = require('socket.io')(server, {
       credentials: true
   },
   allowEIO3: true
-});
-/*const io = require("socket.io")(server, {
+});*/
+const io = require("socket.io")(server, {
   cors: {
     origin: '*'
   }
-});*/
+});
 const { ExpressPeerServer } = require("peer");
 const peerServer = ExpressPeerServer(server, {
-  debug: true,
+  debug: true
+  
 });
 
 

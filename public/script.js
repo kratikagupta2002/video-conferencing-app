@@ -27,9 +27,7 @@ var screen ="";
 
 const peer_id = localStorage.getItem("user_id")
 var peer = new Peer(undefined, {
-  path: '/peerjs',
-  host: 'https://kratika-video-conferencing-app.herokuapp.com/',
-  port: '',
+  host: 'https://kratika-video-conferencing-app.herokuapp.com/', secure:true, port: 443 
 
 });
 let peers={};
@@ -102,6 +100,7 @@ const addVideoStream = (video, stream) => {
     
   });
   videoGrid.append(video);  
+  
 };
 
 let text = document.querySelector("#chat_message");
