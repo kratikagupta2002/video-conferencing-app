@@ -27,9 +27,11 @@ var screen ="";
 
 const peer_id = localStorage.getItem("user_id")
 var peer = new Peer(undefined, {
+  key: 'peerjs',
   path: '/peerjs',
-  host: 'https://kratika-video-conferencing-app.herokuapp.com',
+  host: 'https://kratika-video-conferencing-app.herokuapp.com/',
   port: '443',
+  secure: true
 
 });
 let peers={};
