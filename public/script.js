@@ -1,10 +1,10 @@
-const socket = io("/");
+const socket = io("/");                                             //create socket
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
 const backBtn = document.querySelector(".header__back");
 
-myVideo.muted = true;
+myVideo.muted = true;                                               //mute ourselves so that there is no feedback 
 
 backBtn.addEventListener("click", () => {
   document.querySelector(".main__left").style.display = "flex";
@@ -22,28 +22,29 @@ showChat.addEventListener("click", () => {
 
 const user=prompt("Please enter your name")
 
-const currentPeer = [];
+const currentPeer = [];                                             //array to store peer connections
 var screen ="";
 
 const peer_id = localStorage.getItem("user_id")
-var peer = new Peer(undefined, {
-
+var peer = new Peer(undefined, {                                    //creating a peer element
   host: 'kratika-chit-chat-app.herokuapp.com',
   port: '443',
   secure: true
 
 });
+
 let peers={};
 let myVideoStream;
-navigator.mediaDevices
+//Access user's video and audio
+navigator.mediaDevices            
   .getUserMedia({
     audio: true,
     video: true,
   })
   .then((stream) => {    
     myVideoStream = stream;
-    addVideoStream(myVideo, stream);    
-    socket.on("user-connected", (userId) => { 
+    addVideoStream(myVideo, stream);                              //display our own video to ourselves
+    socket.on("user-connected", (userId) => {                     //when a new user connects
       setTimeout (() => {
         connectToNewUser(userId, stream);  
       },3000)
@@ -52,13 +53,13 @@ navigator.mediaDevices
       
       
     }); 
-
+//Incoming call when a new user joins the room
     peer.on("call", (call) => {
-      call.answer(stream);                                            // answer the call with an audio + video stream
+      call.answer(stream);                                        // answer the call with an audio + video stream
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
-        addVideoStream(video, userVideoStream);
-        currentPeer.push(call.peerConnection);
+        addVideoStream(video, userVideoStream);                   //append their video to our video-grid
+        currentPeer.push(call.peerConnection);                    //add new user info to the array
         console.log(peers);
         
       });
@@ -73,56 +74,57 @@ socket.on('user-disconnected', userId => {
   
 }); 
 
-peer.on("open", (id) => {
+//Join a room when we first open the app
+peer.on("open", (id) => {                                       
   currentUserId = id;
   socket.emit("join-room", ROOM_ID, id, user);
   
 });
 
-
+//runs when a new user joins the room
 const connectToNewUser = (userId, stream) => {
-  const call = peer.call(userId, stream);
+  const call = peer.call(userId, stream);                         //call the new user who just joined
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
     userVideoStream=stream;
-    addVideoStream(video, userVideoStream);
+    addVideoStream(video, userVideoStream);                       //add thier video stream
     currentPeer.push(call.peerConnection);
     console.log(user + "joined")
 
   })
-    call.on('close', () => {      
+    call.on('close', () => {                                     //remove their video from the grid if they leave
       video.remove();  
     })
 
     peers[userId] = call;
 }
 
+//adds videostream of the user to the video-grid
 const addVideoStream = (video, stream) => {
   video.srcObject = stream;
-  //video.controls=true;
   video.setAttribute('disablepictureinpicture', '')
   video.addEventListener("loadedmetadata", () => {
     video.play();  
     
   });
-  videoGrid.append(video);  
+  videoGrid.append(video);            
   
 };
 
 let text = document.querySelector("#chat_message");
 let send = document.getElementById("send");
 let messages = document.querySelector(".messages");
-
+//Two methods to send message - click on send button or enter
 send.addEventListener("click", (e) => {
   if (text.value.length !== 0) {
-    socket.emit("message", text.value);
+    socket.emit("message", text.value);                           //send message when user clicks send button
     text.value = "";
   }
 });
 
 text.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && text.value.length !== 0) {
-    socket.emit("message", text.value);
+    socket.emit("message", text.value);                           //send message when user presses enter
     text.value = "";
   }
 });
@@ -132,11 +134,11 @@ socket.on("createMessage", (message, userName) => {
     messages.innerHTML +
     `<div class="message">
         <b><i class="far fa-user-circle"></i> <span> ${
-          userName === user ? "You" : userName
+          userName === user ? "You" : userName                      //to display name of person who sends message
         }</span> </b>
         <span>${message}</span>
         <div style ="color: white;text-align: right;">
-        ${new Date().toLocaleString('en-US', {
+        ${new Date().toLocaleString('en-US', {                     //to display time of message
           hour: 'numeric',
           minute: 'numeric',
           hour12: true,
@@ -151,19 +153,19 @@ const muteButton = document.querySelector("#muteButton");
 const stopVideo = document.querySelector("#stopVideo");
 const shareScreen = document.querySelector("#shareScreen");
 
-shareScreen.addEventListener("click", async ()=>{
+shareScreen.addEventListener("click", async ()=>{                             //share screen when its icon is clicked
   shareScreen.classList.toggle("background__red");
   shareScreen.disabled=true;
   const video = document.createElement("video");
   var captureStream = null;
   try {
-    captureStream = await navigator.mediaDevices.getDisplayMedia();
+    captureStream = await navigator.mediaDevices.getDisplayMedia();           //capture user's screen who is sharing 
     var videoTrack = captureStream.getVideoTracks()[0];
     videoTrack.controls=true;
-    videoTrack.onended = ()=>{
+    videoTrack.onended = ()=>{                                                //triggered when stop sharing button is pressed
     stopScreenShare();
     }
-    for( let i = 0; i<currentPeer.length; i++){
+    for( let i = 0; i<currentPeer.length; i++){                               //replace user's video with his screen for evryone in the room
       var sender = currentPeer[i].getSenders().find((s)=>{
       return s.track.kind === videoTrack.kind;
     })
@@ -178,7 +180,7 @@ shareScreen.addEventListener("click", async ()=>{
 function stopScreenShare(){
   shareScreen.classList.toggle("background__red");
   var videoTrack = myVideoStream.getVideoTracks()[0];
-  for(let i =0; i<currentPeer.length; i++){
+  for(let i =0; i<currentPeer.length; i++){                                   //replace user's screen with his video for evryone in the room
     var sender =   currentPeer[i].getSenders().find((s)=>{
     return s.track.kind === videoTrack.kind;
     })
@@ -187,10 +189,10 @@ function stopScreenShare(){
 }
 
 
-muteButton.addEventListener("click", () => {
+muteButton.addEventListener("click", () => {                                //mute user when clicked
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
-    myVideoStream.getAudioTracks()[0].enabled = false;
+    myVideoStream.getAudioTracks()[0].enabled = false;                      //a notification is popped up saying "mic is off"
     new Notify ({
       status: 'error',      
       text: 'Your mic is off',
@@ -214,7 +216,7 @@ muteButton.addEventListener("click", () => {
   } else {
     myVideoStream.getAudioTracks()[0].enabled = true;
     new Notify ({
-      status: 'warning',      
+      status: 'warning',                                                      //a notification is popped up saying "mic is ofn"
       text: 'Your mic is on',
       effect: 'fade',
       speed: 300,
@@ -239,12 +241,12 @@ muteButton.addEventListener("click", () => {
 stopVideo.addEventListener("click", () => {
   const enabled = myVideoStream.getVideoTracks()[0].enabled;
   if (enabled) {
-    myVideoStream.getVideoTracks()[0].enabled = false;
+    myVideoStream.getVideoTracks()[0].enabled = false;                           //turns off video
     html = `<i class="fas fa-video-slash"></i>`;
     stopVideo.classList.toggle("background__red");
     stopVideo.innerHTML = html;
   } else {
-    myVideoStream.getVideoTracks()[0].enabled = true;
+    myVideoStream.getVideoTracks()[0].enabled = true;                            //turns on video
     html = `<i class="fas fa-video"></i>`;
     stopVideo.classList.toggle("background__red");
     stopVideo.innerHTML = html;
@@ -253,10 +255,10 @@ stopVideo.addEventListener("click", () => {
 
 inviteButton.addEventListener("click", (e) => {
   var addr = window.location.href
-  navigator.clipboard.writeText(addr);
+  navigator.clipboard.writeText(addr);                                          //invite link is copied to clipboard
   new Notify ({
     status: 'success',      
-    text: 'Link copied!',
+    text: 'Link copied!',                                                       //a success notification saying "link copied!"
     effect: 'fade',
     speed: 300,
     customClass: null,
@@ -274,24 +276,16 @@ inviteButton.addEventListener("click", (e) => {
 
 function endmeeting() {  
   console.log("someone left")
-  window.location.href="../views/end.html";
+  window.location.href="../views/end.html";                                     //redirect user to end.html when end button is clicked
 }
  
 
 const record = document.querySelector('.record');
 const stop = document.querySelector('.stop');
 const soundClips = document.querySelector('.sound-clips');
-const canvas = document.querySelector('.visualizer');
 const mainSection = document.querySelector('.main-controls');
 
-// disable stop button while not recording
-
-stop.disabled = true;
-
-// visualiser setup - create web audio api context and canvas
-
-let audioCtx;
-
+stop.disabled = true;                                                           // disable stop button while not recording
 
 //main block for doing the audio recording
 
@@ -299,18 +293,16 @@ if (navigator.mediaDevices.getUserMedia) {
   console.log('getUserMedia supported.');
 
   const constraints = { video: true, audio: true };
-  let chunks = [];
+  let chunks = [];                                                            //create a buffer to store the incoming data
 
   let onSuccess = function(stream) {
-    const mediaRecorder = new MediaRecorder(stream);
-
-    //visualize(stream);
+    const mediaRecorder = new MediaRecorder(stream);                           //Instantiate media recorder
 
     record.onclick = function() {
       mediaRecorder.start();
       new Notify ({
         status: 'success',      
-        text: 'Recording has started!',
+        text: 'Recording has started!',                                         //notification displaying "recording started!"
         effect: 'fade',
         speed: 300,
         customClass: null,
@@ -337,7 +329,7 @@ if (navigator.mediaDevices.getUserMedia) {
       mediaRecorder.stop();
       new Notify ({
         status: 'success',      
-        text: 'Recording stopped!',
+        text: 'Recording stopped!',                                               //notification displaying "recording stopped!"
         effect: 'fade',
         speed: 300,
         customClass: null,
@@ -357,17 +349,16 @@ if (navigator.mediaDevices.getUserMedia) {
       record.style.color = "";
       record.style.borderStyle="hidden";
 
-      // mediaRecorder.requestData();
-
       stop.disabled = true;
       record.disabled = false;
     }
 
-    mediaRecorder.onstop = function(e) {
+    mediaRecorder.onstop = function(e) {                                          //when stop recording is called
       console.log("data available after MediaRecorder.stop() called.");
 
-      const clipName = prompt('Enter a name for your sound clip?','My clip');
-
+      const clipName = prompt('Enter a name for your audio clip','My clip');      
+      
+      //creating the audio clip container
       const clipContainer = document.createElement('article');
       const clipLabel = document.createElement('p');
       const audio = document.createElement('audio');
@@ -385,17 +376,17 @@ if (navigator.mediaDevices.getUserMedia) {
       soundClips.appendChild(clipContainer);
 
       audio.controls = true;
-      const blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+      const blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });       // a blob combines all the audio chunks into a single quantity
       chunks = [];
-      const audioURL = window.URL.createObjectURL(blob);
+      const audioURL = window.URL.createObjectURL(blob);                          //point to the blob created with a new URL
       audio.src = audioURL;
       console.log("recorder stopped");
-      //saveAs(clipName);
+      
 
-      deleteButton.onclick = function(e) {
+      deleteButton.onclick = function(e) {                                         //when delete button is clicked      
         Swal.fire({
           title: 'Are you sure?',
-          text: "You won't be able to revert this!",
+          text: "You won't be able to revert this!",                               //delete confiramtion dialog box
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: '#3085d6',
@@ -404,9 +395,9 @@ if (navigator.mediaDevices.getUserMedia) {
         }).then((result) => {
           if (result.isConfirmed) {
             let evtTgt = e.target;
-            evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
+            evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);           //delete auddio clip when clciked on "yes"
             console.log("deleted");
-            Swal.fire(
+            Swal.fire(                                                              
               'Deleted!',
               'Your audio clip has been deleted.',
               'success'
@@ -421,11 +412,7 @@ if (navigator.mediaDevices.getUserMedia) {
             )
           }
         })
-        /*
-        let evtTgt = e.target;
-        evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
-        toastr.success('Audio recording has been deleted!');
-        console.log("deleted");*/
+        
       }
 
       clipLabel.onclick = function() {
@@ -446,21 +433,51 @@ if (navigator.mediaDevices.getUserMedia) {
   }
 
   let onError = function(err) {
-    toastr.error('An error occured!');
+    new Notify ({
+      status: 'error',      
+      text: 'An error occured!',                                               //notification displaying "error occured!" when reording isn't successful
+      effect: 'fade',
+      speed: 300,
+      customClass: null,
+      customIcon: null,
+      showIcon: true,
+      showCloseButton: true,
+      autoclose: true,
+      autotimeout: 3000,
+      gap: 20,
+      distance: 20,
+      type: 3,
+      position: 'right top'
+    })
     console.log('The following error occured: ' + err);
   }
 
   navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError);
 
 } else {
-  toastr.error('getUserMedia not supported on your browser!');
+  new Notify ({
+    status: 'error',      
+    text: 'getUserMedia not supported on your browser!',                                               
+    effect: 'fade',
+    speed: 300,
+    customClass: null,
+    customIcon: null,
+    showIcon: true,
+    showCloseButton: true,
+    autoclose: true,
+    autotimeout: 3000,
+    gap: 20,
+    distance: 20,
+    type: 3,
+    position: 'right top'
+  })
    console.log('getUserMedia not supported on your browser!');
 }
 
-document.querySelectorAll('.feedback li').forEach(entry => entry.addEventListener('click', e => {
+document.querySelectorAll('.feedback li').forEach(entry => entry.addEventListener('click', e => {      //when an emoji is clicked for feedback 
   if(!entry.classList.contains('active')) {
-      document.querySelector('.feedback li.active').classList.remove('active');
-      entry.classList.add('active');
+      document.querySelector('.feedback li.active').classList.remove('active');                        //when feedback os changed from one emoji to other
+      entry.classList.add('active');                                                                   //update the DB with new feedback
   }
   e.preventDefault();
 }));
