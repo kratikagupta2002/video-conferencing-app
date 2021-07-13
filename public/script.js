@@ -43,9 +43,12 @@ navigator.mediaDevices
     myVideoStream = stream;
     addVideoStream(myVideo, stream);    
     socket.on("user-connected", (userId) => { 
+      setTimeout (() => {
+        connectToNewUser(userId, stream);  
+      },3000)
       console.log("User Connected " + userId);   
       console.log(user + " joined")  
-      connectToNewUser(userId, stream);  
+      
       
     }); 
 
