@@ -26,13 +26,18 @@ const currentPeer = [];                                             //array to s
 var screen ="";
 
 const peer_id = localStorage.getItem("user_id")
-var peer = new Peer(undefined, {                                    //creating a peer element
+/*var peer = new Peer(undefined, {                                    //creating a peer element
   host: 'kratika-chit-chat-app.herokuapp.com',
   port: '443',
   secure: true
 
-});
+});*/
 
+var peer = new Peer(undefined, { 
+  path: 'peerjs' ,                                  //creating a peer element
+  host: '/',
+  port: '3030'
+});
 let peers={};
 let myVideoStream;
 //Access user's video and audio
