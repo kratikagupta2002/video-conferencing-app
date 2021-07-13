@@ -2,8 +2,8 @@
 
 :root {
   --main-darklg: hsl(204, 88%, 42%);
-  --main-dark: white;
-  --primary-color: hsl(204, 72%, 55%);
+  --main-dark: #161d29;
+  --primary-color: #2f80ec;
   --main-light: #eeeeee;
   font-family: "Poppins", sans-serif;
 }
@@ -111,7 +111,7 @@ video {
   display: flex;
   flex-direction: column;
   flex: 0.3;
-  background-color: hsl(204, 63%, 47%);
+  background-color: #242f41;
 }
 
 .main__chat_window {
